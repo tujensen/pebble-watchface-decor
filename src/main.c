@@ -1,6 +1,6 @@
 #include <pebble.h>
   
-#define MAX_COLORS 4
+#define MAX_COLORS 8
  
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -13,18 +13,27 @@ static Layer *s_canvas;
 static GPath *triangles[8];
 
 static const int colors[MAX_COLORS] = {
-  0x00FFFF, 
-  0x5555AA, 
-  0x00AA55, 
-  0xAA00FF
+  0x00AAAA, // GColorTiffanyBlue
+  0x5555AA, // GColorLiberty
+  0x00AA55, // GColorJaegerGreen
+  0xAA00FF, // GColorVividViolet
+  0xFF5500, // GColorOrange
+  0x555500, // GColorArmyGreen
+  0xFF5555, // GColorSunsetOrange
+  0x0055AA, // GColorCobaltBlue
 };
 
 static const int background_colors[MAX_COLORS] = {
-  0xAAFFFF, 
-  0xAAAAFF, 
-  0xAAFF55, 
-  0xFF55FF, 
+  0x55FFFF, // GColorElectricBlue
+  0xAAAAFF, // GColorBabyBlueEyes
+  0xAAFF55, // GColorInchworm
+  0xFF55FF, // GColorShockingPink
+  0xFFAA00, // GColorChromeYellow
+  0xAAAA00, // GColorLimerick
+  0xFFAAAA, // GColorMelon
+  0x00AAFF, // GColorVividCerulean
 };
+
 
 int selected_triangle;
 int selected_color;
@@ -109,7 +118,7 @@ static void update_time(int force) {
     text_layer_set_text(s_time_layer, buffer);
     text_layer_set_text(s_time_layer_back, buffer);
 
-    selected_color = (selected_color + 1) % MAX_COLORS;
+    selected_color = rand() % MAX_COLORS;
     window_set_background_color(s_main_window, GColorFromHEX(background_colors[selected_color]));
   }
 
@@ -187,6 +196,8 @@ static void main_window_unload(Window *window) {
 }
 
 static void init() {
+  srand(time(NULL));
+  
   // Create main Window element and assign to pointer
   s_main_window = window_create();
 
