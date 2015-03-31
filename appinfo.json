@@ -1,0 +1,23 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "tujensen@gmail.com",
+    "longName": "Roboticon Watchface",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "RoboWatchface",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "241ba5a2-f465-4ecd-b791-fd79f568bbd9",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
