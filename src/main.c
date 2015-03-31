@@ -1,4 +1,6 @@
 #include <pebble.h>
+  
+#define MAX_COLORS 4
  
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -10,20 +12,22 @@ static Layer *s_canvas;
 
 static GPath *triangles[8];
 
-static const int colors[8] = {
-  0xAAFFFF, 
+static const int colors[MAX_COLORS] = {
   0x00FFFF, 
-  0xAAAAFF, 
   0x5555AA, 
-  0xAAFF55, 
   0x00AA55, 
-  0xFF55FF, 
   0xAA00FF
 };
 
-int selected;
+static const int background_colors[MAX_COLORS] = {
+  0xAAFFFF, 
+  0xAAAAFF, 
+  0xAAFF55, 
+  0xFF55FF, 
+};
+
+int selected_triangle;
 int selected_color;
-int selected_background;
 
 static const GPathInfo TRIAGLE_1_PATH_INFO = {
   .num_points = 3,
@@ -69,7 +73,7 @@ static void update_canvas(Layer *this_layer, GContext *ctx) {
   graphics_context_set_antialiased(ctx, false);
   graphics_context_set_stroke_width(ctx, 8);
   
-  draw_triangle(triangles[selected], ctx, GColorFromHEX(colors[selected_color]));
+  draw_triangle(triangles[selected_triangle], ctx, GColorFromHEX(colors[selected_color]));
 }
 
 static void update_time(int force) {
@@ -89,7 +93,7 @@ static void update_time(int force) {
   int result = atoi(sbuffer);
   
   double d_res = (result) / 7.5;
-  selected = d_res;
+  selected_triangle = d_res;
   
   if (result <= 0 || force) {
     static char buffer[] = "00:00";
@@ -105,9 +109,8 @@ static void update_time(int force) {
     text_layer_set_text(s_time_layer, buffer);
     text_layer_set_text(s_time_layer_back, buffer);
 
-    selected_background = (selected_background + 2) % 8;
-    selected_color = selected_background + 1;
-    window_set_background_color(s_main_window, GColorFromHEX(colors[selected_background]));
+    selected_color = (selected_color + 1) % MAX_COLORS;
+    window_set_background_color(s_main_window, GColorFromHEX(background_colors[selected_color]));
   }
 
   if (result % 8 == 0) {
@@ -120,11 +123,10 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 static void main_window_load(Window *window) {
-  selected = 0;
-  selected_color = 1;
-  selected_background = 0;
+  selected_triangle = 0;
+  selected_color = 0;
   
-  window_set_background_color(s_main_window, GColorFromHEX(colors[selected_background]));
+  window_set_background_color(s_main_window, GColorFromHEX(background_colors[selected_color]));
 
   s_canvas = layer_create(GRect(0, 0, 144, 168));
   
@@ -178,6 +180,8 @@ static void main_window_unload(Window *window) {
     gpath_destroy(triangles[i]);
   }
   
+  layer_destroy(s_canvas);
+  
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
 }
@@ -186,6 +190,7 @@ static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
 
+  // Set full screen
   window_set_fullscreen(s_main_window, 1);
   
   // Set handlers to manage the elements inside the Window
