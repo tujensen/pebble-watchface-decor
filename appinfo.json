@@ -7,7 +7,13 @@
     "longName": "Roboticon Watchface",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "fonts/Roboticon_Numbers.ttf",
+                "name": "FONT_ROBOTICON_42",
+                "type": "font"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "RoboWatchface",
