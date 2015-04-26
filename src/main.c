@@ -15,7 +15,9 @@ static TextLayer *s_second_layer;
 static TextLayer *s_second_layer_back;
 static GFont s_time_font;
 static Layer *s_canvas;
+static TextLayer *s_battery_layer;
 
+static GPath *battery;
 static GPath *triangles[8];
 
 static const int colors[MAX_COLORS] = {
@@ -75,21 +77,41 @@ static const GPathInfo TRIAGLE_8_PATH_INFO = {
   .points = (GPoint []) {{0, 0}, {72, 0}, {72, 84}}
 };
 
+static const GPathInfo BATTERY_PATH_INFO = {
+  .num_points = 9,
+  .points = (GPoint []) {{130, 2}, {141, 2}, {141, 3}, {142, 3}, {142, 7}, {141, 7}, {141, 8}, {130, 8}, {130, 2}}
+};
+
 int selected_triangle;
 int selected_color;
+int battery_level;
 
 static void draw_triangle(GPath *triangle, GContext *ctx, GColor8 color) {
+  graphics_context_set_antialiased(ctx, false);
+  graphics_context_set_stroke_width(ctx, 8);
+  
   graphics_context_set_fill_color(ctx, color);
   gpath_draw_filled(ctx, triangle);
   graphics_context_set_stroke_color(ctx, color);
   gpath_draw_outline(ctx, triangle);
 }
 
-static void update_canvas(Layer *this_layer, GContext *ctx) {
-  graphics_context_set_antialiased(ctx, false);
-  graphics_context_set_stroke_width(ctx, 8);
+static void draw_battery(GContext *ctx, GColor8 color) {
+  graphics_context_set_stroke_width(ctx, 2);
+  graphics_context_set_fill_color(ctx, color);
+  gpath_draw_filled(ctx, battery);
   
+  graphics_context_set_stroke_color(ctx, GColorFromHEX(0x000000));
+  gpath_draw_outline(ctx, battery);
+}
+
+static void update_canvas(Layer *this_layer, GContext *ctx) {
   draw_triangle(triangles[selected_triangle], ctx, GColorFromHEX(colors[selected_color]));
+
+  // Show battery low indicator below 25 %
+  if (battery_level < 25) {
+    draw_battery(ctx, GColorFromHEX(0xFF0000));
+  }
 }
 
 static void update_time(int force) {
@@ -140,6 +162,13 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time(0);
 }
 
+static void battery_handler(BatteryChargeState new_state) {
+  // Write to buffer and display
+  static char s_battery_buffer[32];
+  snprintf(s_battery_buffer, sizeof(s_battery_buffer), "%d", new_state.charge_percent);
+  battery_level = atoi(s_battery_buffer);
+}
+
 static void main_window_load(Window *window) {
   // Initialize variables.
   selected_triangle = 0;
@@ -153,9 +182,9 @@ static void main_window_load(Window *window) {
   
   // Create watch texts.
   s_time_layer = text_layer_create(GRect(0, 30, 144, 50));
-  s_time_layer_back = text_layer_create(GRect(1, 31, 143, 51));
+  s_time_layer_back = text_layer_create(GRect(2, 31, 143, 51));
   s_second_layer = text_layer_create(GRect(6, 85, 139, 50));
-  s_second_layer_back = text_layer_create(GRect(7, 86, 138, 49));
+  s_second_layer_back = text_layer_create(GRect(8, 86, 138, 49));
   
   // Setup watch text colors.
   text_layer_set_text_color(s_time_layer, GColorBlack);
@@ -186,6 +215,9 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer_back));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer));
+
+  // Get the current battery level
+  battery_handler(battery_state_service_peek());
 }
 
 static void main_window_unload(Window *window) {
@@ -201,7 +233,11 @@ static void main_window_unload(Window *window) {
     gpath_destroy(triangles[i]);
   }
   
+  gpath_destroy(battery);
+  
   layer_destroy(s_canvas);
+  
+  text_layer_destroy(s_battery_layer);
   
   // Unload GFont
   fonts_unload_custom_font(s_time_font);
@@ -237,11 +273,17 @@ static void init() {
   triangles[6] = gpath_create(&TRIAGLE_7_PATH_INFO);
   triangles[7] = gpath_create(&TRIAGLE_8_PATH_INFO);
   
+  // Battery GPath.
+  battery = gpath_create(&BATTERY_PATH_INFO);
+  
   // Set update procedure for s_canvas.
   layer_set_update_proc(s_canvas, update_canvas);
   
   // Register with TickTimerService
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  
+  // Subscribe to the Battery State Service
+  battery_state_service_subscribe(battery_handler);
 }
 
 static void deinit() {
