@@ -181,10 +181,10 @@ static void main_window_load(Window *window) {
   s_canvas = layer_create(GRect(0, 0, 144, 168));
   
   // Create watch texts.
-  s_time_layer = text_layer_create(GRect(0, 30, 144, 50));
-  s_time_layer_back = text_layer_create(GRect(2, 31, 143, 51));
-  s_second_layer = text_layer_create(GRect(6, 85, 139, 50));
-  s_second_layer_back = text_layer_create(GRect(8, 86, 138, 49));
+  s_time_layer = text_layer_create(GRect(2, 30, 144, 50));
+  s_time_layer_back = text_layer_create(GRect(3, 31, 144, 50));
+  s_second_layer = text_layer_create(GRect(2, 88, 144, 50));
+  s_second_layer_back = text_layer_create(GRect(3, 89, 144, 50));
   
   // Setup watch text colors.
   text_layer_set_text_color(s_time_layer, GColorBlack);
