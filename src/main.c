@@ -1,5 +1,5 @@
 /**
-  Roboticon Watchface
+  Decor Watchface
   written by Troels Ugilt Jensen.
   http://tuj.dk
 */
@@ -7,7 +7,7 @@
 #include <pebble.h>
   
 #define MAX_COLORS 9
- 
+  
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static TextLayer *s_time_layer_back;
@@ -79,7 +79,7 @@ static const GPathInfo TRIAGLE_8_PATH_INFO = {
 
 static const GPathInfo BATTERY_PATH_INFO = {
   .num_points = 9,
-  .points = (GPoint []) {{130, 2}, {141, 2}, {141, 3}, {142, 3}, {142, 7}, {141, 7}, {141, 8}, {130, 8}, {130, 2}}
+  .points = (GPoint []) {{128, 2}, {139, 2}, {139, 3}, {140, 3}, {140, 7}, {139, 7}, {139, 8}, {128, 8}, {128, 2}}
 };
 
 int selected_triangle;
@@ -102,6 +102,10 @@ static void draw_battery(GContext *ctx, GColor8 color) {
   gpath_draw_filled(ctx, battery);
   
   graphics_context_set_stroke_color(ctx, GColorFromHEX(0x000000));
+  gpath_draw_outline(ctx, battery);
+
+  graphics_context_set_stroke_color(ctx, GColorFromHEX(0xFFFFFF));
+  graphics_context_set_stroke_width(ctx, 1);
   gpath_draw_outline(ctx, battery);
 }
 
@@ -249,9 +253,6 @@ static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
 
-  // Set full screen
-  window_set_fullscreen(s_main_window, 1);
-  
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
