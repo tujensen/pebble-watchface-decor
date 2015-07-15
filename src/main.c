@@ -79,7 +79,7 @@ static const GPathInfo TRIAGLE_8_PATH_INFO = {
 
 static const GPathInfo BATTERY_PATH_INFO = {
   .num_points = 9,
-  .points = (GPoint []) {{128, 2}, {139, 2}, {139, 3}, {140, 3}, {140, 7}, {139, 7}, {139, 8}, {128, 8}, {128, 2}}
+  .points = (GPoint []) {{125, 3}, {136, 3}, {136, 4}, {137, 4}, {137, 8}, {136, 8}, {136, 9}, {125, 9}, {125, 3}}
 };
 
 int selected_triangle;
