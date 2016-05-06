@@ -4,6 +4,7 @@
         ""
     ],
     "companyName": "Troels Ugilt Jensen",
+    "enableMultiJS": false,
     "longName": "Decor",
     "projectType": "native",
     "resources": {
@@ -12,7 +13,7 @@
                 "file": "images/decor.png",
                 "menuIcon": true,
                 "name": "MENU_ICON",
-                "type": "png"
+                "type": "bitmap"
             },
             {
                 "file": "fonts/Roboticon_Numbers.ttf",
@@ -24,10 +25,12 @@
     "sdkVersion": "3",
     "shortName": "Decor",
     "targetPlatforms": [
-        "basalt"
+        "aplite",
+        "basalt",
+        "chalk"
     ],
     "uuid": "241ba5a2-f465-4ecd-b791-fd79f568bbd9",
-    "versionLabel": "1.1",
+    "versionLabel": "2.0",
     "watchapp": {
         "watchface": true
     }

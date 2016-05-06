@@ -16,6 +16,11 @@ static TextLayer *s_second_layer_back;
 static GFont s_time_font;
 static Layer *s_canvas;
 static TextLayer *s_battery_layer;
+static TextLayer *s_info_layer;
+static char sbuffer[] = "00";
+static char buffer[] = "00:00";
+static char dbuffer[] = "00000000000000000000000000000";
+  
 
 static GPath *battery;
 static GPath *triangles[8];
@@ -44,43 +49,87 @@ static const int background_colors[MAX_COLORS] = {
   0x00AAFF, // GColorVividCerulean
 };
 
-static const GPathInfo TRIAGLE_1_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{72, 0}, {144, 0}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_2_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{144, 0}, {144, 84}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_3_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{144, 84}, {144, 168}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_4_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{72, 168}, {144, 168}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_5_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{72, 168}, {0, 168}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_6_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{0, 168}, {0, 84}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_7_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{0, 0}, {0, 84}, {72, 84}}
-};
-static const GPathInfo TRIAGLE_8_PATH_INFO = {
-  .num_points = 3,
-  .points = (GPoint []) {{0, 0}, {72, 0}, {72, 84}}
-};
+#if defined(PBL_PLATFORM_CHALK)
+  static const GPathInfo TRIAGLE_1_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{90, 0}, {180, 0}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_2_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{180, 0}, {180, 90}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_3_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{180, 90}, {180, 180}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_4_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{90, 180}, {180, 180}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_5_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{90, 180}, {0, 180}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_6_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 180}, {0, 90}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_7_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 0}, {0, 90}, {90, 90}}
+  };
+  static const GPathInfo TRIAGLE_8_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 0}, {90, 0}, {90, 90}}
+  };
 
-static const GPathInfo BATTERY_PATH_INFO = {
-  .num_points = 9,
-  .points = (GPoint []) {{125, 3}, {136, 3}, {136, 4}, {137, 4}, {137, 8}, {136, 8}, {136, 9}, {125, 9}, {125, 3}}
-};
+
+  static const GPathInfo BATTERY_PATH_INFO = {
+    .num_points = 9,
+    .points = (GPoint []) {{125, 3}, {136, 3}, {136, 4}, {137, 4}, {137, 8}, {136, 8}, {136, 9}, {125, 9}, {125, 3}}
+  };
+#else
+  // Basalt or Aplite
+  static const GPathInfo TRIAGLE_1_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{72, 0}, {144, 0}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_2_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{144, 0}, {144, 84}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_3_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{144, 84}, {144, 168}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_4_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{72, 168}, {144, 168}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_5_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{72, 168}, {0, 168}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_6_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 168}, {0, 84}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_7_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 0}, {0, 84}, {72, 84}}
+  };
+  static const GPathInfo TRIAGLE_8_PATH_INFO = {
+    .num_points = 3,
+    .points = (GPoint []) {{0, 0}, {72, 0}, {72, 84}}
+  };
+
+
+  static const GPathInfo BATTERY_PATH_INFO = {
+    .num_points = 9,
+    .points = (GPoint []) {{125, 3}, {136, 3}, {136, 4}, {137, 4}, {137, 8}, {136, 8}, {136, 9}, {125, 9}, {125, 3}}
+  };
+#endif
+
 
 int selected_triangle;
 int selected_color;
@@ -122,10 +171,8 @@ static void update_time(int force) {
   // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
-
+  
   // Create a long-lived buffer
-  static char sbuffer[] = "00";
-
   strftime(sbuffer, sizeof("00"), "%S", tick_time);
     
   // Display this time on the TextLayer
@@ -141,8 +188,6 @@ static void update_time(int force) {
   
   // Did a minute pass, or was force == true?
   if (result <= 0 || force) {
-    static char buffer[] = "00:00";
-    
     // Write the current hours and minutes into the buffer
     if (clock_is_24h_style() == true) {
       // Use 24 hour format
@@ -151,6 +196,10 @@ static void update_time(int force) {
       // Use 12 hour format
       strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
     }
+    
+    // Update date text.
+    strftime(dbuffer, 80, "%a. %d. %b. %Y", tick_time);
+    text_layer_set_text(s_info_layer, dbuffer);
     
     // Set the minute texts.
     text_layer_set_text(s_time_layer, buffer);
@@ -181,24 +230,38 @@ static void main_window_load(Window *window) {
   // Set background color.
   window_set_background_color(s_main_window, GColorFromHEX(background_colors[selected_color]));
 
-  // Create background canvas.
-  s_canvas = layer_create(GRect(0, 0, 144, 168));
+  // Create background canvas and text layers
+  #if defined(PBL_PLATFORM_CHALK)
+    s_canvas = layer_create(GRect(0, 0, 180, 180));
+    
+    s_time_layer = text_layer_create(GRect(0, 38, 180, 50));
+    s_time_layer_back = text_layer_create(GRect(1, 39, 180, 50));
+    s_second_layer = text_layer_create(GRect(2, 97, 180, 50));
+    s_second_layer_back = text_layer_create(GRect(3, 98, 180, 50));
   
-  // Create watch texts.
-  s_time_layer = text_layer_create(GRect(2, 30, 144, 50));
-  s_time_layer_back = text_layer_create(GRect(3, 31, 144, 50));
-  s_second_layer = text_layer_create(GRect(2, 88, 144, 50));
-  s_second_layer_back = text_layer_create(GRect(3, 89, 144, 50));
+    s_info_layer = text_layer_create(GRect(10, 139, 124, 19));
+  #else
+    s_canvas = layer_create(GRect(0, 0, 144, 168));
+  
+    s_time_layer = text_layer_create(GRect(2, 30, 144, 50));
+    s_time_layer_back = text_layer_create(GRect(3, 31, 144, 50));
+    s_second_layer = text_layer_create(GRect(2, 88, 144, 50));
+    s_second_layer_back = text_layer_create(GRect(3, 89, 144, 50));
+  
+    s_info_layer = text_layer_create(GRect(10, 139, 124, 19));
+  #endif
   
   // Setup watch text colors.
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text_color(s_time_layer_back, GColorWhite);
   text_layer_set_text_color(s_second_layer, GColorBlack);
   text_layer_set_text_color(s_second_layer_back, GColorWhite);
+  text_layer_set_text_color(s_info_layer, GColorBlack);
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_background_color(s_time_layer_back, GColorClear);
   text_layer_set_background_color(s_second_layer, GColorClear);
   text_layer_set_background_color(s_second_layer_back, GColorClear);
+  text_layer_set_background_color(s_info_layer, GColorClear);
   
   // Setup font for watch.
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTICON_42));
@@ -206,12 +269,14 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_time_layer_back, s_time_font);
   text_layer_set_font(s_second_layer, s_time_font);
   text_layer_set_font(s_second_layer_back, s_time_font);
+  text_layer_set_font(s_info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   
   // Set text alignments.
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_time_layer_back, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_second_layer, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_second_layer_back, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_info_layer, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), s_canvas);
@@ -219,9 +284,13 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer_back));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer));
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_info_layer));
 
   // Get the current battery level
   battery_handler(battery_state_service_peek());
+  
+  // Update time
+  update_time(1);
 }
 
 static void main_window_unload(Window *window) {
@@ -232,6 +301,7 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer_back);
   text_layer_destroy(s_second_layer);
   text_layer_destroy(s_second_layer_back);
+  text_layer_destroy(s_info_layer);
   
   for (i = 0; i < 8; i++) {
     gpath_destroy(triangles[i]);
@@ -252,17 +322,13 @@ static void init() {
   
   // Create main Window element and assign to pointer
   s_main_window = window_create();
-
   // Set handlers to manage the elements inside the Window
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = main_window_load,
     .unload = main_window_unload
   });
 
-  // Show the Window on the watch, with animated=true
   window_stack_push(s_main_window, true);
-  
-  update_time(1);
   
   // Setup triangle GPaths.
   triangles[0] = gpath_create(&TRIAGLE_1_PATH_INFO);
