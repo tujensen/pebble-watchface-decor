@@ -17,6 +17,7 @@ static GFont s_time_font;
 static Layer *s_canvas;
 static TextLayer *s_battery_layer;
 static TextLayer *s_info_layer;
+static TextLayer *s_info_layer_back;
 static char sbuffer[] = "00";
 static char buffer[] = "00:00";
 static char dbuffer[] = "00000000000000000000000000000";
@@ -200,6 +201,7 @@ static void update_time(int force) {
     // Update date text.
     strftime(dbuffer, 80, "%a. %d. %b. %Y", tick_time);
     text_layer_set_text(s_info_layer, dbuffer);
+    text_layer_set_text(s_info_layer_back, dbuffer);
     
     // Set the minute texts.
     text_layer_set_text(s_time_layer, buffer);
@@ -234,21 +236,23 @@ static void main_window_load(Window *window) {
   #if defined(PBL_PLATFORM_CHALK)
     s_canvas = layer_create(GRect(0, 0, 180, 180));
     
-    s_time_layer = text_layer_create(GRect(0, 38, 180, 50));
-    s_time_layer_back = text_layer_create(GRect(1, 39, 180, 50));
-    s_second_layer = text_layer_create(GRect(2, 97, 180, 50));
-    s_second_layer_back = text_layer_create(GRect(3, 98, 180, 50));
+    s_time_layer = text_layer_create(GRect(0, 30, 180, 50));
+    s_time_layer_back = text_layer_create(GRect(1, 31, 180, 50));
+    s_second_layer = text_layer_create(GRect(2, 105, 180, 50));
+    s_second_layer_back = text_layer_create(GRect(3, 106, 180, 50));
   
-    s_info_layer = text_layer_create(GRect(10, 139, 124, 19));
+    s_info_layer = text_layer_create(GRect(5, 78, 170, 20));
+    s_info_layer_back = text_layer_create(GRect(6, 79, 170, 20));
   #else
     s_canvas = layer_create(GRect(0, 0, 144, 168));
   
-    s_time_layer = text_layer_create(GRect(2, 30, 144, 50));
-    s_time_layer_back = text_layer_create(GRect(3, 31, 144, 50));
-    s_second_layer = text_layer_create(GRect(2, 88, 144, 50));
-    s_second_layer_back = text_layer_create(GRect(3, 89, 144, 50));
+    s_time_layer = text_layer_create(GRect(2, 16, 144, 50));
+    s_time_layer_back = text_layer_create(GRect(3, 17, 144, 50));
+    s_second_layer = text_layer_create(GRect(2, 102, 144, 50));
+    s_second_layer_back = text_layer_create(GRect(3, 103, 144, 50));
   
-    s_info_layer = text_layer_create(GRect(10, 139, 124, 19));
+    s_info_layer = text_layer_create(GRect(10, 71, 124, 20));
+    s_info_layer_back = text_layer_create(GRect(11, 72, 124, 20));
   #endif
   
   // Setup watch text colors.
@@ -257,11 +261,13 @@ static void main_window_load(Window *window) {
   text_layer_set_text_color(s_second_layer, GColorBlack);
   text_layer_set_text_color(s_second_layer_back, GColorWhite);
   text_layer_set_text_color(s_info_layer, GColorBlack);
+  text_layer_set_text_color(s_info_layer_back, GColorWhite);
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_background_color(s_time_layer_back, GColorClear);
   text_layer_set_background_color(s_second_layer, GColorClear);
   text_layer_set_background_color(s_second_layer_back, GColorClear);
   text_layer_set_background_color(s_info_layer, GColorClear);
+  text_layer_set_background_color(s_info_layer_back, GColorClear);
   
   // Setup font for watch.
   s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTICON_42));
@@ -270,6 +276,7 @@ static void main_window_load(Window *window) {
   text_layer_set_font(s_second_layer, s_time_font);
   text_layer_set_font(s_second_layer_back, s_time_font);
   text_layer_set_font(s_info_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+  text_layer_set_font(s_info_layer_back, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
   
   // Set text alignments.
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
@@ -277,6 +284,7 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_second_layer, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_second_layer_back, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_info_layer, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_info_layer_back, GTextAlignmentCenter);
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), s_canvas);
@@ -284,8 +292,9 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer_back));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_second_layer));
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_info_layer_back));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_info_layer));
-
+  
   // Get the current battery level
   battery_handler(battery_state_service_peek());
   
@@ -302,6 +311,7 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_second_layer);
   text_layer_destroy(s_second_layer_back);
   text_layer_destroy(s_info_layer);
+  text_layer_destroy(s_info_layer_back);
   
   for (i = 0; i < 8; i++) {
     gpath_destroy(triangles[i]);
