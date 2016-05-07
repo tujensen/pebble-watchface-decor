@@ -6,7 +6,7 @@
 
 #include <pebble.h>
   
-#define MAX_COLORS 9
+#define MAX_COLORS 5
   
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -20,32 +20,24 @@ static TextLayer *s_info_layer;
 static TextLayer *s_info_layer_back;
 static char sbuffer[] = "00";
 static char buffer[] = "00:00";
-static char dbuffer[] = "00000000000000000000000000000";
+static char dbuffer[] = "00/00/00";
   
 
 static GPath *battery;
 static GPath *triangles[8];
 
 static const int colors[MAX_COLORS] = {
-  0x555555, // GColorDarkGray
   0x00AAAA, // GColorTiffanyBlue
-  0x5555AA, // GColorLiberty
-  0x00AA55, // GColorJaegerGreen
   0xAA00FF, // GColorVividViolet
   0xFF5500, // GColorOrange
-  0x555500, // GColorArmyGreen
   0xFF5555, // GColorSunsetOrange
   0x0055AA, // GColorCobaltBlue
 };
 
 static const int background_colors[MAX_COLORS] = {
-  0xAAAAAA, // GColorLightGray
   0x55FFFF, // GColorElectricBlue
-  0xAAAAFF, // GColorBabyBlueEyes
-  0xAAFF55, // GColorInchworm
   0xFF55FF, // GColorShockingPink
   0xFFAA00, // GColorChromeYellow
-  0xAAAA00, // GColorLimerick
   0xFFAAAA, // GColorMelon
   0x00AAFF, // GColorVividCerulean
 };
@@ -127,7 +119,7 @@ static const int background_colors[MAX_COLORS] = {
 
   static const GPathInfo BATTERY_PATH_INFO = {
     .num_points = 9,
-    .points = (GPoint []) {{125, 3}, {136, 3}, {136, 4}, {137, 4}, {137, 8}, {136, 8}, {136, 9}, {125, 9}, {125, 3}}
+    .points = (GPoint []) {{125, 7}, {136, 7}, {136, 8}, {137, 8}, {137, 12}, {136, 12}, {136, 13}, {125, 13}, {125, 7}}
   };
 #endif
 
@@ -199,7 +191,7 @@ static void update_time(int force) {
     }
     
     // Update date text.
-    strftime(dbuffer, 80, "%a. %d. %b. %Y", tick_time);
+    strftime(dbuffer, 80, "%x", tick_time);
     text_layer_set_text(s_info_layer, dbuffer);
     text_layer_set_text(s_info_layer_back, dbuffer);
     
@@ -245,14 +237,14 @@ static void main_window_load(Window *window) {
     s_info_layer_back = text_layer_create(GRect(6, 79, 170, 20));
   #else
     s_canvas = layer_create(GRect(0, 0, 144, 168));
+
+    s_time_layer = text_layer_create(GRect(2, 28, 144, 50));
+    s_time_layer_back = text_layer_create(GRect(3, 29, 144, 50));
+    s_second_layer = text_layer_create(GRect(2, 95, 144, 50));
+    s_second_layer_back = text_layer_create(GRect(3, 96, 144, 50));
   
-    s_time_layer = text_layer_create(GRect(2, 16, 144, 50));
-    s_time_layer_back = text_layer_create(GRect(3, 17, 144, 50));
-    s_second_layer = text_layer_create(GRect(2, 102, 144, 50));
-    s_second_layer_back = text_layer_create(GRect(3, 103, 144, 50));
-  
-    s_info_layer = text_layer_create(GRect(10, 71, 124, 20));
-    s_info_layer_back = text_layer_create(GRect(11, 72, 124, 20));
+    s_info_layer = text_layer_create(GRect(3, 0, 124, 20));
+    s_info_layer_back = text_layer_create(GRect(4, 1, 124, 20));
   #endif
   
   // Setup watch text colors.
@@ -283,8 +275,14 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer_back, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_second_layer, GTextAlignmentCenter);
   text_layer_set_text_alignment(s_second_layer_back, GTextAlignmentCenter);
+  #if defined(PBL_PLATFORM_CHALK)
   text_layer_set_text_alignment(s_info_layer, GTextAlignmentCenter);
-  text_layer_set_text_alignment(s_info_layer_back, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_info_layer_back, GTextAlignmentCenter);  
+  #else
+  text_layer_set_text_alignment(s_info_layer, GTextAlignmentLeft);
+  text_layer_set_text_alignment(s_info_layer_back, GTextAlignmentLeft);
+  #endif
+  
 
   // Add it as a child layer to the Window's root layer
   layer_add_child(window_get_root_layer(window), s_canvas);
