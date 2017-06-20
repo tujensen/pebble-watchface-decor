@@ -1,5 +1,4 @@
 # roboticon-watchface
 
-## Intro
-This is the code for my Pebble Time Watchface.
-It is only made for Pebble Time (Basalt) since it relies a lot on colors.
+A pebble time watchface.
+See the watchface here: https://apps.getpebble.com/en_US/application/559fa334f6ecd1b150000014
